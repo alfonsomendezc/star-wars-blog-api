@@ -2,13 +2,14 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify, url_for, Response
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People, Planets
+import requests
 #from models import Person
 
 app = Flask(__name__)
@@ -30,14 +31,44 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def handle_hello():
-
+    users = User.query.all()
+    users_serialize = map(lambda user: user.serialize())
+    print(users)
     response_body = {
         "msg": "Hello, this is your GET /user response "
     }
 
     return jsonify(response_body), 200
+
+@app.route('/user/favorites', methods=['GET'])
+def handle_favorites():
+    return "Favorites", 200
+
+@app.route('/people', methods=['GET'])
+def handle_people():
+
+    response = requests.get("https://www.swapi.tech/api/people/")
+    return response.json(), 200
+
+@app.route('/people/<int:people_id>', methods=['GET'])
+def handle_person(people_id):
+
+    response = requests.get(f"https://www.swapi.tech/api/people/{people_id}")
+    return response.json(), 200
+
+@app.route('/planets', methods=['GET'])
+def handle_planets():
+
+    response = requests.get("https://www.swapi.tech/api/planets/")
+    return response.json(), 200
+
+@app.route('/<int:planets_id>', methods=['GET'])
+def handle_planet():
+
+    response = requests.get(f"https://www.swapi.tech/api/planets/{planets_id}")
+    return response.json(), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
