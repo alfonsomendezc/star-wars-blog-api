@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets
+from models import db, User, People, Planets, Planet, Person
 import requests
 #from models import Person
 
@@ -34,10 +34,11 @@ def sitemap():
 @app.route('/users', methods=['GET'])
 def handle_hello():
     users = User.query.all()
-    users_serialize = map(lambda user: user.serialize())
+    users_serialize = list(map(lambda user: user.serialize(), users))
     print(users)
     response_body = {
-        "msg": "Hello, this is your GET /user response "
+        "msg": "Hello, this is your GET /user response ",
+        "results": users_serialize
     }
 
     return jsonify(response_body), 200
@@ -62,6 +63,16 @@ def handle_person(people_id):
 def handle_planets():
 
     response = requests.get("https://www.swapi.tech/api/planets/")
+    response_decoded = response.json()
+    planets = Planet.query.all()
+    if len(planets) == 0:
+        for planet in response_decoded['results']:
+            response_one_planet = requests.get("url")
+            response_one_planet_decoded = response_one_planet.json()
+            response_one_planet_decoded['result']
+            print("Soy un planeta", response_one_planet_decoded)
+
+
     return response.json(), 200
 
 @app.route('/<int:planets_id>', methods=['GET'])
