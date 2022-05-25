@@ -64,16 +64,17 @@ def handle_planets():
 
     response = requests.get("https://www.swapi.tech/api/planets/")
     response_decoded = response.json()
-    planets = Planet.query.all()
-    if len(planets) == 0:
-        for planet in response_decoded['results']:
-            response_one_planet = requests.get("url")
-            response_one_planet_decoded = response_one_planet.json()
-            response_one_planet_decoded['result']
-            print("Soy un planeta", response_one_planet_decoded)
+    
+    # planets = Planet.query.all()
+    # if len(planets) == 0:
+    #     for planet in response_decoded['results']:
+    #         response_one_planet = requests.get("url")
+    #         response_one_planet_decoded = response_one_planet.json()
+    #         response_one_planet_decoded['result']
+    #         print("Soy un planeta", response_one_planet_decoded)
+    #         one_planet = Planet(response_one_planet_decoded['result'])
 
-
-    return response.json(), 200
+    return response_decoded, 200
 
 @app.route('/<int:planets_id>', methods=['GET'])
 def handle_planet():

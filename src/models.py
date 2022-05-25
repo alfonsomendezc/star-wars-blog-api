@@ -49,7 +49,7 @@ class Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     favorite_planet= db.relationship('FavoritePlanet', lazy = True)
 
-    def __init__(self):
+    def __init__(self, diameter, rotation_period, orbital_period, gravity, population, climate, terrain, surface_water, created, edited, name, url):
         pass
 
 class FavoritePerson(db.Model):
