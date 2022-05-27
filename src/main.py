@@ -59,28 +59,28 @@ def handle_person(people_id):
     response = requests.get(f"https://www.swapi.tech/api/people/{people_id}")
     return response.json(), 200
 
-@app.route('/planets', methods=['GET'])
-def handle_planets():
+@app.route('/planet', methods=['GET'])
+def handle_planet():
 
     response = requests.get("https://www.swapi.tech/api/planets/")
     response_decoded = response.json()
-    
-    # planets = Planet.query.all()
-    # if len(planets) == 0:
-    #     for planet in response_decoded['results']:
-    #         response_one_planet = requests.get("url")
-    #         response_one_planet_decoded = response_one_planet.json()
-    #         response_one_planet_decoded['result']
-    #         print("Soy un planeta", response_one_planet_decoded)
-    #         one_planet = Planet(response_one_planet_decoded['result'])
+    planets = Planet.query.all()
+    if len(planets) == 0:
+        for planet in response_decoded['results']:
+            response_one_planet = requests.get(planet["url"])
+            response_one_planet_decoded = response_one_planet.json()
+            response_one_planet_decoded['result']
+            one_planet = Planet(**response_one_planet_decoded['result']['properties'],description=response_one_planet_decoded['result']['description'],_id=response_one_planet_decoded['result']['_id'],uid=response_one_planet_decoded['result']['uid'])
+            db.session.add(one_planet)
+        db.session.commit()
 
     return response_decoded, 200
 
-@app.route('/<int:planets_id>', methods=['GET'])
-def handle_planet():
+# @app.route('/planets/<int:planets_id>', methods=['GET'])
+# def handle_planet():
 
-    response = requests.get(f"https://www.swapi.tech/api/planets/{planets_id}")
-    return response.json(), 200
+#     response = requests.get(f"https://www.swapi.tech/api/planets/{planets_id}")
+#     return response.json(), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

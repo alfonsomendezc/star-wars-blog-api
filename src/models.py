@@ -33,13 +33,7 @@ class People(db.Model):
 class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=True, nullable=False)
-    diameter = db.Column(db.String(120), unique=True, nullable=False)
-    rotation_period = db.Column(db.String(120), unique=True, nullable=False)
-    population = db.Column(db.String(120), unique=True, nullable=False)
-    gravity = db.Column(db.String(120), unique=True, nullable=False)
-    climate = db.Column(db.String(120), unique=True, nullable=False)
-    terrain = db.Column(db.String(120), unique=True, nullable=False)
-
+    
 
 class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,9 +42,38 @@ class Person(db.Model):
 class Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     favorite_planet= db.relationship('FavoritePlanet', lazy = True)
+    diameter = db.Column(db.String(120), nullable=False)
+    rotation_period = db.Column(db.String(120), nullable=False)
+    orbital_period = db.Column(db.String(120), nullable=False)
+    gravity = db.Column(db.String(120), nullable=False)
+    population = db.Column(db.String(120), nullable=False)
+    climate = db.Column(db.String(120), nullable=False)
+    terrain = db.Column(db.String(120), nullable=False)
+    surface_water = db.Column(db.String(120), nullable=False)
+    created = db.Column(db.String(120), nullable=False)
+    edited = db.Column(db.String(120), nullable=False)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    url = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.String(120), nullable=True)
+    _id = db.Column(db.String(120), unique=True, nullable=True)
+    uid = db.Column(db.String(120), unique=True, nullable=True)
 
-    def __init__(self, diameter, rotation_period, orbital_period, gravity, population, climate, terrain, surface_water, created, edited, name, url):
-        pass
+    def __init__(self, diameter, rotation_period, orbital_period, gravity, population, climate, terrain, surface_water, created, edited, name, url, description=None, _id=None, uid=None):
+        self.diameter = diameter
+        self.rotation_period = rotation_period
+        self.orbital_period = orbital_period
+        self.gravity = gravity
+        self.population = population
+        self.climate = climate
+        self.terrain = terrain
+        self.surface_water = surface_water
+        self.created = created
+        self.edited = edited
+        self.name = name
+        self.url = url
+        self.description = description
+        self._id = _id
+        self.uid = uid
 
 class FavoritePerson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
