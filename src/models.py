@@ -27,8 +27,29 @@ class People(db.Model):
     mass = db.Column(db.String(120), unique=True, nullable=False)
     hair_color = db.Column(db.String(120), unique=True, nullable=False)
     eye_color = db.Column(db.String(120), unique=True, nullable=False)
-    gender = db.Column(db.String(120), unique=True, nullable=False)
     birth_year = db.Column(db.String(120), unique=True, nullable=False)
+    gender = db.Column(db.String(120), unique=True, nullable=False)
+    homeworld = db.Column(db.String(120), unique=True, nullable=False)
+    created = db.Column(db.String(120), nullable=False)
+    edited = db.Column(db.String(120), nullable=False)
+    url = db.Column(db.String(120), unique=True, nullable=False)
+    _id = db.Column(db.String(120), unique=True, nullable=True)
+    uid = db.Column(db.String(120), unique=True, nullable=True)
+
+    def __init__(self, name, height, mass, hair_color, eye_color, birth_year, gender, homeworld, created, edited, url, _id=None, uid=None):
+        self.name = name
+        self.height = height
+        self.mass = mass
+        self.hair_color = hair_color
+        self.eye_color = eye_color
+        self.birth_year = birth_year
+        self.gender = gender
+        self.homeworld = homeworld
+        self.created = created
+        self.edited = edited
+        self.url = url
+        self._id = _id
+        self.uid = uid
 
 class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -42,6 +63,7 @@ class Person(db.Model):
 class Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     favorite_planet= db.relationship('FavoritePlanet', lazy = True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
     diameter = db.Column(db.String(120), nullable=False)
     rotation_period = db.Column(db.String(120), nullable=False)
     orbital_period = db.Column(db.String(120), nullable=False)
@@ -52,13 +74,12 @@ class Planet(db.Model):
     surface_water = db.Column(db.String(120), nullable=False)
     created = db.Column(db.String(120), nullable=False)
     edited = db.Column(db.String(120), nullable=False)
-    name = db.Column(db.String(120), unique=True, nullable=False)
     url = db.Column(db.String(120), unique=True, nullable=False)
-    description = db.Column(db.String(120), nullable=True)
     _id = db.Column(db.String(120), unique=True, nullable=True)
     uid = db.Column(db.String(120), unique=True, nullable=True)
 
-    def __init__(self, diameter, rotation_period, orbital_period, gravity, population, climate, terrain, surface_water, created, edited, name, url, description=None, _id=None, uid=None):
+    def __init__(self, name, diameter, rotation_period, orbital_period, gravity, population, climate, terrain, surface_water, created, edited, url, _id=None, uid=None):
+        self.name = name
         self.diameter = diameter
         self.rotation_period = rotation_period
         self.orbital_period = orbital_period
@@ -69,9 +90,7 @@ class Planet(db.Model):
         self.surface_water = surface_water
         self.created = created
         self.edited = edited
-        self.name = name
         self.url = url
-        self.description = description
         self._id = _id
         self.uid = uid
 
