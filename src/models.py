@@ -22,25 +22,27 @@ class User(db.Model):
 
 class People(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True, nullable=False)
-    height = db.Column(db.String(120), unique=True, nullable=False)
-    mass = db.Column(db.String(120), unique=True, nullable=False)
-    hair_color = db.Column(db.String(120), unique=True, nullable=False)
-    eye_color = db.Column(db.String(120), unique=True, nullable=False)
-    birth_year = db.Column(db.String(120), unique=True, nullable=False)
-    gender = db.Column(db.String(120), unique=True, nullable=False)
-    homeworld = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(120), unique=False, nullable=False)
+    height = db.Column(db.String(120), unique=False, nullable=False)
+    mass = db.Column(db.String(120), unique=False, nullable=False)
+    hair_color = db.Column(db.String(120), unique=False, nullable=False)
+    skin_color = db.Column(db.String(120), unique=False, nullable=False)
+    eye_color = db.Column(db.String(120), unique=False, nullable=False)
+    birth_year = db.Column(db.String(120), unique=False, nullable=False)
+    gender = db.Column(db.String(120), unique=False, nullable=False)
+    homeworld = db.Column(db.String(120), unique=False)
     created = db.Column(db.String(120), nullable=False)
     edited = db.Column(db.String(120), nullable=False)
     url = db.Column(db.String(120), unique=True, nullable=False)
     _id = db.Column(db.String(120), unique=True, nullable=True)
     uid = db.Column(db.String(120), unique=True, nullable=True)
 
-    def __init__(self, name, height, mass, hair_color, eye_color, birth_year, gender, homeworld, created, edited, url, _id=None, uid=None):
+    def __init__(self, name, height, mass, hair_color, skin_color, eye_color, birth_year, gender, created, edited, url, homeworld=None, _id=None, uid=None):
         self.name = name
         self.height = height
         self.mass = mass
         self.hair_color = hair_color
+        self.skin_color = skin_color
         self.eye_color = eye_color
         self.birth_year = birth_year
         self.gender = gender
@@ -108,6 +110,11 @@ class FavoritePlanet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
+
+    def __init__(self,user_id,planet_id):
+        self.user_id = user_id
+        self.planet_id = planet_id
+
     def serialize(self):
         return {
             "id": self.id,

@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets, Planet, Person
+from models import db, User, People, Planets, Planet, Person, FavoritePlanet
 import requests
 #from models import Person
 
@@ -52,14 +52,14 @@ def handle_people():
 
     response = requests.get("https://www.swapi.tech/api/people/")
     response_decoded = response.json()
-    people = Person.query.all()
+    people = People.query.all()
     if len(people) == 0:
-        for person in response_decoded['results']:
-            response_one_person = requests.get(person["url"])
-            response_one_person_decoded = response_one_person.json()
-            response_one_person_decoded['result']
-            one_person = Person(**response_one_person_decoded['result']['properties'],_id=response_one_person_decoded['result']['_id'],uid=response_one_person_decoded['result']['uid'])
-            db.session.add(one_person)
+        for people in response_decoded['results']:
+            response_one_people = requests.get(people["url"])
+            response_one_people_decoded = response_one_people.json()
+            response_one_people_decoded['result']
+            one_people = People(**response_one_people_decoded['result']['properties'],_id=response_one_people_decoded['result']['_id'],uid=response_one_people_decoded['result']['uid'])
+            db.session.add(one_people)
         db.session.commit()
 
     return response_decoded, 200
@@ -87,6 +87,17 @@ def handle_planet():
         db.session.commit()
 
     return response_decoded, 200
+
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def favorite_planet(planet_id):
+    user = list(User.query.filter_by(is_active=True))
+    planet = list(Planet.query.filter_by(uid=planet_id))
+    if len(user) > 0 and len(planet) > 0:
+        my_favorite_planet = FavoritePlanet(user[0].id, planet[0].id)
+        db.session.add(my_favorite_planet)
+        db.session.commit()
+    return {"msg":f"Creado favorito con el id: {user[0].id} y el planeta de id: {planet[0].id}"}
+
 
 # @app.route('/planets/<int:planets_id>', methods=['GET'])
 # def handle_planet():
