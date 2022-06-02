@@ -7,11 +7,11 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-    favorite_planet = db.relationship('FavoritePlanet', lazy = True)
-    favorite_person = db.relationship('FavoritePerson', lazy = True)
+    favorite_planets = db.relationship('FavoritePlanets', lazy = True)
+    favorite_people = db.relationship('FavoritePeople', lazy = True)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return f"Active Profile's username: {self.email}"
 
     def serialize(self):
         return {
@@ -53,18 +53,10 @@ class People(db.Model):
         self._id = _id
         self.uid = uid
 
-class Planets(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True, nullable=False)
-    
-
-class Person(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    favorite_person= db.relationship('FavoritePerson', lazy = True)
 
 class Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    favorite_planet= db.relationship('FavoritePlanet', lazy = True)
+    favorite_planet= db.relationship('FavoritePlanets', lazy = True)
     name = db.Column(db.String(120), unique=True, nullable=False)
     diameter = db.Column(db.String(120), nullable=False)
     rotation_period = db.Column(db.String(120), nullable=False)
@@ -96,17 +88,23 @@ class Planet(db.Model):
         self._id = _id
         self.uid = uid
 
-class FavoritePerson(db.Model):
+class FavoritePeople(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
+    people_id = db.Column(db.Integer, db.ForeignKey('people.id'))
+    
+    def __init__(self,user_id,people_id):
+        self.user_id = user_id
+        self.people_id = people_id
+
     def serialize(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
+            "people_id": self.people_id
         }
 
-class FavoritePlanet(db.Model):
+class FavoritePlanets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
@@ -119,4 +117,5 @@ class FavoritePlanet(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
+            "planet_id": self.planet_id
         }
