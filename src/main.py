@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets, Planet, Person, FavoritePlanet
+from models import db, User, People, Planet, FavoritePlanets, FavoritePeople
 import requests
 #from models import Person
 
@@ -35,17 +35,12 @@ def sitemap():
 def handle_hello():
     users = User.query.all()
     users_serialize = list(map(lambda user: user.serialize(), users))
-    print(users)
     response_body = {
         "msg": "Hello, this is your GET /user response ",
         "results": users_serialize
     }
 
     return jsonify(response_body), 200
-
-@app.route('/user/favorites', methods=['GET'])
-def handle_favorites():
-    return "Favorites", 200
 
 @app.route('/people', methods=['GET'])
 def handle_people():
@@ -55,29 +50,22 @@ def handle_people():
     people = People.query.all()
     if len(people) == 0:
         for people in response_decoded['results']:
-            response_one_people = requests.get(people["url"])
-            response_one_people_decoded = response_one_people.json()
-            response_one_people_decoded['result']
-            one_people = People(**response_one_people_decoded['result']['properties'],_id=response_one_people_decoded['result']['_id'],uid=response_one_people_decoded['result']['uid'])
-            db.session.add(one_people)
+            response_one_person = requests.get(people["url"])
+            response_one_person_decoded = response_one_person.json()
+            response_one_person_decoded['result']
+            one_person = People(**response_one_person_decoded['result']['properties'],_id=response_one_person_decoded['result']['_id'],uid=response_one_person_decoded['result']['uid'])
+            db.session.add(one_person)
         db.session.commit()
 
     return response_decoded, 200
-
-
-# @app.route('/people/<int:people_id>', methods=['GET'])
-# def handle_person(people_id):
-
-#     response = requests.get(f"https://www.swapi.tech/api/people/{people_id}")
-#     return response.json(), 200
 
 @app.route('/planets', methods=['GET'])
 def handle_planet():
 
     response = requests.get("https://www.swapi.tech/api/planets/")
     response_decoded = response.json()
-    planets = Planet.query.all()
-    if len(planets) == 0:
+    planet = Planet.query.all()
+    if len(planet) == 0:
         for planet in response_decoded['results']:
             response_one_planet = requests.get(planet["url"])
             response_one_planet_decoded = response_one_planet.json()
@@ -88,23 +76,67 @@ def handle_planet():
 
     return response_decoded, 200
 
-@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
-def favorite_planet(planet_id):
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
+def handle_favorite_planet(planet_id):
     user = list(User.query.filter_by(is_active=True))
     planet = list(Planet.query.filter_by(uid=planet_id))
-    if len(user) > 0 and len(planet) > 0:
-        my_favorite_planet = FavoritePlanet(user[0].id, planet[0].id)
-        db.session.add(my_favorite_planet)
+    if request.method == "POST":
+        if len(user) > 0 and len(planet) > 0:
+            my_favorite_planet = FavoritePlanets(user[0].id, planet[0].id)
+            db.session.add(my_favorite_planet)
+            db.session.commit()
+        return {"msg":f"Added favorite from user id: {user[0].id} and planet id of: {planet[0].id}"}
+    else:
+        favorite_planet = FavoritePlanets.query.filter_by(user_id = user[0].id, planet_id = planet[0].id)
+        if favorite_planet is None:
+            raise APIException('Favorite planet not found', status_code = 404)
+        db.session.delete(favorite_planet[0])
         db.session.commit()
-    return {"msg":f"Creado favorito con el id: {user[0].id} y el planeta de id: {planet[0].id}"}
+        return {"msg":f"Removed favorite from user id: {user[0].id} and planet id of: {planet[0].id}"}
+
+@app.route('/favorite/people/<int:people_id>', methods=['POST', 'DELETE'])
+def handle_favorite_people(people_id):
+    user = list(User.query.filter_by(is_active=True))
+    people = list(People.query.filter_by(uid=people_id))
+    if request.method == "POST":
+        if len(user) > 0 and len(people) > 0:
+            my_favorite_people = FavoritePeople(user[0].id, people[0].id)
+            db.session.add(my_favorite_people)
+            db.session.commit()
+        return {"msg":f"Added favorite from user id: {user[0].id} and people id of: {people[0].id}"}
+    else:
+        favorite_people = FavoritePeople.query.filter_by(user_id = user[0].id, people_id = people[0].id)
+        if favorite_people is None:
+            raise APIException('Favorite people not found', status_code = 404)
+        db.session.delete(favorite_people[0])
+        db.session.commit()
+        return {"msg":f"Removed favorite from user id: {user[0].id} and people id of: {people[0].id}"}
 
 
-# @app.route('/planets/<int:planets_id>', methods=['GET'])
-# def handle_planet():
 
-#     response = requests.get(f"https://www.swapi.tech/api/planets/{planets_id}")
-#     return response.json(), 200
 
+@app.route('/user/favorites', methods=['GET'])
+def current_user_favorites():
+    favorites = []
+    user = list(User.query.filter_by(is_active=True))
+    for favorite_planets in user[0].favorite_planets:
+        favorites.append(favorite_planets.serialize())
+    for favorite_people in user[0].favorite_people:
+        favorites.append(favorite_people.serialize())
+    response = {'results':favorites, 'msg':"Active User's Favorites"}, 200
+    return jsonify(response), 200
+
+@app.route('/planets/<int:planets_id>', methods=['GET'])
+def handle_one_planet(planets_id):
+    response = requests.get(f"https://www.swapi.tech/api/planets/{planets_id}")
+    response_decoded = response.json()
+    return response_decoded, 200
+
+@app.route('/people/<int:people_id>', methods=['GET'])
+def handle_person(people_id):
+
+    response = requests.get(f"https://www.swapi.tech/api/people/{people_id}")
+    return response.json(), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
